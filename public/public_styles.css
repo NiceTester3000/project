@@ -1,0 +1,17 @@
+/* Дополнительные стили для Tailwind */
+body {
+  background-color: #1a202c;
+}
+input, button {
+  transition: all 0.3s ease;
+}
+input:focus {
+  outline: none;
+  border-color: #e02424;
+}
+table {
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #4a5568;
+}

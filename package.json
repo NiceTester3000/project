@@ -1,0 +1,20 @@
+{
+  "name": "telegram-order-app",
+  "version": "1.0.0",
+  "description": "Telegram mini-app for ordering goods from China",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "form-data": "^4.0.0",
+    "multer": "^1.4.5-lts.1",
+    "telegraf": "^4.16.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

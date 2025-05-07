@@ -1,0 +1,121 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Форма заказа</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold text-red-600 mb-4">Форма заказа товаров</h1>
+    <div id="form">
+      <div class="mb-4">
+        <label class="block text-sm font-medium">Ваш ник/имя</label>
+        <input id="username" type="text" class="w-full p-2 bg-gray-800 border border-gray-600 rounded text-white" required>
+      </div>
+      <div id="items">
+        <div class="item mb-4 p-4 bg-gray-800 rounded">
+          <h2 class="text-lg font-semibold text-red-600">Товар 1</h2>
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm font-medium">Наименование (обязательно)</label>
+              <input type="text" name="name" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Ссылка на товар/контакт</label>
+              <input type="text" name="link" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Фото товара</label>
+              <input type="file" name="photo" accept="image/*" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Цвет</label>
+              <input type="text" name="color" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Размер</label>
+              <input type="text" name="size" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Количество</label>
+              <input type="number" name="quantity" min="1" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Цена за 1 ед. (юаней)</label>
+              <input type="number" name="price" min="0" step="0.01" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex space-x-4">
+        <button id="add-item" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Добавить товар</button>
+        <button id="preview" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Предпросмотр</button>
+        <button id="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Сформировать бланк</button>
+      </div>
+    </div>
+    <div id="preview-section" class="hidden mt-4">
+      <h2 class="text-xl font-semibold text-red-600">Предпросмотр</h2>
+      <table class="w-full bg-gray-800 rounded">
+        <thead>
+          <tr class="bg-red-600 text-white">
+            <th class="p-2">№</th>
+            <th class="p-2">Наименование</th>
+            <th class="p-2">Ссылка</th>
+            <th class="p-2">Фото</th>
+            <th class="p-2">Цвет</th>
+            <th class="p-2">Размер</th>
+            <th class="p-2">Кол-во</th>
+            <th class="p-2">Цена (юаней)</th>
+            <th class="p-2">Услуги</th>
+            <th class="p-2">Итого</th>
+          </tr>
+        </thead>
+        <tbody id="preview-table"></tbody>
+      </table>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

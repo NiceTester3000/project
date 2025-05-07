@@ -2,9 +2,9 @@
   "name": "telegram-order-app",
   "version": "1.0.0",
   "description": "Telegram mini-app for ordering goods from China",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "axios": "^1.7.2",

@@ -16,8 +16,14 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(express.json());
 app.use(express.static('public'));
 
+// Обработчик корневого пути для загрузки index.html
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 // Запуск мини-приложения
 bot.command('start', (ctx) => {
+  console.log('Получена команда /start от:', ctx.from.id);
   ctx.reply('Открыть форму заказа:', {
     reply_markup: {
       inline_keyboard: [
@@ -30,6 +36,7 @@ bot.command('start', (ctx) => {
 // Обработка данных формы
 app.post('/submit', upload.array('photos'), async (req, res) => {
   try {
+    console.log('Получены данные формы:', req.body);
     const { username, items } = JSON.parse(req.body.data);
     const photos = req.files;
     const chatId = req.body.chatId;
@@ -39,10 +46,12 @@ app.post('/submit', upload.array('photos'), async (req, res) => {
     for (const photo of photos) {
       const formData = new FormData();
       formData.append('image', photo.buffer.toString('base64'));
+      console.log('Загружаю фото на ImgBB...');
       const response = await axios.post('https://api.imgbb.com/1/upload?key=12f37e73339d58d7b6894b9a0c932c6a', formData, {
         headers: formData.getHeaders(),
       });
       photoUrls.push(response.data.data.url);
+      console.log('Фото загружено:', response.data.data.url);
     }
 
     // Расчёт услуг в Китае
@@ -51,6 +60,7 @@ app.post('/submit', upload.array('photos'), async (req, res) => {
     if (itemCount < 10) serviceFee = 30;
     else if (itemCount <= 20) serviceFee = 20;
     else serviceFee = 15;
+    console.log('Количество товаров:', itemCount, 'Услуги в Китае:', serviceFee);
 
     // Создание Excel-файла
     const workbook = new ExcelJS.Workbook();
@@ -95,9 +105,11 @@ app.post('/submit', upload.array('photos'), async (req, res) => {
     });
 
     // Сохранение файла
+    console.log('Создаю Excel-файл...');
     const buffer = await workbook.xlsx.writeBuffer();
 
     // Отправка файла пользователю
+    console.log('Отправляю Excel-файл пользователю:', chatId);
     await bot.telegram.sendDocument(chatId, {
       source: buffer,
       filename: `${username}_order.xlsx`,
@@ -105,7 +117,7 @@ app.post('/submit', upload.array('photos'), async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error('Ошибка:', error.message);
     res.status(500).json({ error: 'Ошибка обработки' });
   }
 });

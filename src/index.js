@@ -19,7 +19,9 @@ app.use(express.static('../public', { index: 'index.html' }));
 
 // Обработчик корневого пути для загрузки index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  const filePath = path.join(__dirname, '..', 'public', 'index.html');
+  console.log('Проверяю путь к index.html:', filePath);
+  res.sendFile(filePath);
 });
 
 // Запуск мини-приложения

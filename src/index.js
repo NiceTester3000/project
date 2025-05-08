@@ -15,7 +15,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Парсинг JSON и статические файлы с индексом
 app.use(express.json());
-app.use(express.static('public', { index: 'index.html' }));
+app.use(express.static('../public', { index: 'index.html' }));
 
 // Обработчик корневого пути для загрузки index.html
 app.get('/', (req, res) => {
@@ -28,7 +28,7 @@ bot.command('start', (ctx) => {
   ctx.reply('Открыть форму заказа:', {
     reply_markup: {
       inline_keyboard: [
-        [{ text: 'Открыть форму', web_app: { url: process.env.APP_URL || 'https://your-render-url.com' } }],
+        [{ text: 'Открыть форму', web_app: { url: process.env.APP_URL || 'https://project-wa0f.onrender.com' } }],
       ],
     },
   });
@@ -48,7 +48,7 @@ app.post('/submit', upload.array('photos'), async (req, res) => {
       const formData = new FormData();
       formData.append('image', photo.buffer.toString('base64'));
       console.log('Загружаю фото на ImgBB...');
-      const response = await axios.post('https://api.imgbb.com/1/upload?key=12f37e73339d58d7b6894b9a0c932c6a', formData, {
+      const response = await axios.post('https://api.imgbb.com/1/upload?key=YOUR_NEW_IMGBB_API_KEY', formData, {
         headers: formData.getHeaders(),
       });
       photoUrls.push(response.data.data.url);

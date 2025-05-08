@@ -4,6 +4,7 @@ const axios = require('axios');
 const ExcelJS = require('exceljs');
 const multer = require('multer');
 const FormData = require('form-data');
+const path = require('path');
 const app = express();
 
 // Настройка Telegram-бота
@@ -12,13 +13,13 @@ const bot = new Telegraf('7358244891:AAHBfSxJkFNugJIfvq8-MgR6Z--aG0RevhI');
 // Настройка загрузки файлов
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Парсинг JSON и статические файлы
+// Парсинг JSON и статические файлы с индексом
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public', { index: 'index.html' }));
 
 // Обработчик корневого пути для загрузки index.html
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Запуск мини-приложения
